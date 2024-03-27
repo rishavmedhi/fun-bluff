@@ -1,3 +1,4 @@
+import { fetchRoomCode } from "@/utils/room.utils";
 import { supabase } from "@/utils/supabase/server";
 
 export async function POST(request: Request) {
@@ -9,19 +10,47 @@ export async function POST(request: Request) {
         error: true,
       });
 
-    const newUser = { user_name: res.user_name, device_id: res.device_id };
-    const { data: userData, error: userError } = await supabase
+    let userData;
+    // search by deviceId
+    const { data: existingUserData, error: ExistUserError } = await supabase
       .from("user")
-      .insert([newUser])
-      .select();
+      .select()
+      .eq("device_id", res.device_id);
 
-    if (userError) {
-      throw userError;
+    if (existingUserData && existingUserData.length > 0) {
+      // updating new user name
+      if (existingUserData[0].user_name !== res.user_name) {
+        const { data: updateUserData, error: updateUserError } = await supabase
+          .from("user")
+          .update({ user_name: res.user_name })
+          .eq("device_id", res.deviceId)
+          .select();
+        userData = updateUserData;
+
+        if(updateUserError){
+          throw updateUserData;
+        }
+      }
+      else
+        userData = existingUserData;
+    } else {
+      // adding new user
+      const newUser = { user_name: res.user_name, device_id: res.device_id };
+      const { data: newUserData, error: newUserError } = await supabase
+        .from("user")
+        .insert([newUser])
+        .select();
+
+      userData = newUserData;
+
+      if (newUserError) {
+        throw newUserError;
+      }
     }
 
     const { data: roomData, error: roomError } = await supabase
       .from("room")
-      .insert([{ room_code: "SUPAMAN" }])
+      .insert([{ room_code: fetchRoomCode() }])
       .select();
 
     if (roomError) {
