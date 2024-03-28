@@ -111,20 +111,20 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          room_id: number | null
-          user_id: number | null
+          room_id: number
+          user_id: number
         }
         Insert: {
           created_at?: string
           id?: number
-          room_id?: number | null
-          user_id?: number | null
+          room_id: number
+          user_id: number
         }
         Update: {
           created_at?: string
           id?: number
-          room_id?: number | null
-          user_id?: number | null
+          room_id?: number
+          user_id?: number
         }
         Relationships: [
           {

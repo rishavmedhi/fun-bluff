@@ -23,16 +23,14 @@ export async function POST(request: Request) {
         const { data: updateUserData, error: updateUserError } = await supabase
           .from("user")
           .update({ user_name: res.user_name })
-          .eq("device_id", res.deviceId)
+          .eq("device_id", res.device_id)
           .select();
         userData = updateUserData;
 
-        if(updateUserError){
+        if (updateUserError) {
           throw updateUserData;
         }
-      }
-      else
-        userData = existingUserData;
+      } else userData = existingUserData;
     } else {
       // adding new user
       const newUser = { user_name: res.user_name, device_id: res.device_id };
@@ -64,7 +62,7 @@ export async function POST(request: Request) {
 
     return Response.json({
       message: "Room created successfully",
-      data: { user: userData, room: roomData },
+      data: { user: userData, room: roomData, memberDetails: userData },
       error: false,
     });
   } catch (e) {

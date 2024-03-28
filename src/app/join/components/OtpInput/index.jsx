@@ -8,14 +8,14 @@ import {
 } from "@/components/ui/input-otp";
 import React from "react"
 
-export default function OtpInput() {
-  const [value, setValue] = React.useState("")
+export default function OtpInput({onValueChange, value}) {
   return (
     <div className="space-y-2">
       <InputOTP
         maxLength={6}
+        pattern={"^[a-zA-Z]+$"}
         value={value}
-        onChange={(value) => setValue(value)}
+        onChange={(value) => onValueChange(value)}
         render={({ slots }) => (
           <InputOTPGroup>
             {slots.map((slot, index) => (
@@ -26,7 +26,7 @@ export default function OtpInput() {
       />
       <div className="text-center text-sm">
         {value === "" ? (
-          <>Enter your one-time password.</>
+          <>Enter the room code.</>
         ) : (
           <>You entered: {value}</>
         )}

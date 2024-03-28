@@ -9,28 +9,6 @@ import Lobby from "./lobby";
 import { RoomType, User } from "@/types/collection";
 import { fetchUserDeviceId } from "@/utils/user.utils";
 
-const dummyResponse = {
-  "message": "Room created successfully",
-  "data": {
-      "user": [
-          {
-              "id": 25,
-              "created_at": "2024-03-25T15:00:58.085252+00:00",
-              "user_name": "RM1",
-              "device_id": "1234"
-          }
-      ],
-      "room": [
-          {
-              "id": 21,
-              "created_at": "2024-03-25T15:00:58.421045+00:00",
-              "room_code": "SUPAMAN"
-          }
-      ]
-  },
-  "error": false
-}
-
 function StartGame() {
   const [userName, setUserName] = useState('');
   const [starterUserData, setStarterUserData] = useState<User["Row"] | undefined>(undefined);
@@ -60,7 +38,7 @@ function StartGame() {
       <Label htmlFor="username">Enter your user name</Label>
       <Input name="username" onChange={(e) => setUserName(e.target.value)} />
       <Button onClick={initiateStartGameRequest}>Start Game</Button>
-      <Lobby user={starterUserData} roomDetails={roomDetails}/>
+      <Lobby user={starterUserData} roomDetails={roomDetails} mode={"CREATOR"} roomMemberDetails={[starterUserData!]}/>
     </div>
   )
 }

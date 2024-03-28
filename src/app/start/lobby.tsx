@@ -1,3 +1,4 @@
+import LobbyCard from "@/components/LobbyCard";
 import { RoomType, User } from "@/types/collection";
 import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { supabase } from "@/utils/supabase/server";
@@ -20,10 +21,12 @@ const dummySubscribePayload = {
 
 interface LobbyProps {
   user: User["Row"] | undefined,
-  roomDetails: RoomType["Row"] | undefined
+  roomDetails: RoomType["Row"] | undefined,
+  mode: "CREATOR" | "JOINER",
+  roomMemberDetails?: User["Row"][] | undefined
 }
 
-function Lobby({ user, roomDetails }: LobbyProps) {
+function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
   const [lobbyUsers, setLobbyUsers] = useState<User["Row"][]>([]);
 
   useEffect(() => {
@@ -48,11 +51,28 @@ function Lobby({ user, roomDetails }: LobbyProps) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [roomDetails,lobbyUsers])
-  return (
-    <div>
+  }, [roomDetails, lobbyUsers])
 
-    </div>
+  useEffect(() => {
+    if (roomMemberDetails && lobbyUsers.length === 0) {
+      const tempLobbyUsers = [...roomMemberDetails];
+      setLobbyUsers(tempLobbyUsers)
+    }
+  }, [roomMemberDetails, lobbyUsers])
+  return (
+    <>
+      {
+        roomDetails && user &&
+        <>
+          <div className="text-lg font-semibold mt-8">Lobby Members</div>
+          <div className="mt-4">
+            {
+              lobbyUsers.map((user, index) => <LobbyCard key={index} username={user.user_name} />)
+            }
+          </div>
+        </>
+      }
+    </>
   )
 }
 
