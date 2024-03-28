@@ -25,7 +25,7 @@ function StartGame() {
     })
 
     // const res = dummyResponse;
-    if(!res.error){
+    if (!res.error) {
       setStarterUserData(res.data.user[0]);
       setRoomDetails(res.data.room[0]);
     }
@@ -38,7 +38,17 @@ function StartGame() {
       <Label htmlFor="username">Enter your user name</Label>
       <Input name="username" onChange={(e) => setUserName(e.target.value)} />
       <Button onClick={initiateStartGameRequest}>Start Game</Button>
-      <Lobby user={starterUserData} roomDetails={roomDetails} mode={"CREATOR"} roomMemberDetails={[starterUserData!]}/>
+      {
+        roomDetails &&
+        <div className="mt-4 mb-4">
+          <div className="text-sm font-medium">Room Code</div>
+          <div className="text-2xl font-bold">
+            {roomDetails?.room_code}
+          </div>
+          <div className="h4 text-muted-foreground">Copy and share with your friends to let them join the lobby</div>
+        </div>
+      }
+      <Lobby user={starterUserData} roomDetails={roomDetails} mode={"CREATOR"} roomMemberDetails={starterUserData?[starterUserData!]:[]} />
     </div>
   )
 }

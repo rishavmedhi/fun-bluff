@@ -5,7 +5,7 @@
  */
 export function fetchUserDeviceId(): string{
   if(localStorage.getItem("deviceId")){
-    return localStorage.getItem("deviceId");
+    return localStorage.getItem("deviceId")!;
   }
   else{
     // generating new deviceId

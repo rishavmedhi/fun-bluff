@@ -52,7 +52,7 @@ export async function updateUserNamebyDeviceId(
   return data;
 }
 
-export async function fetchUsersByUserIds(userIds: number[] | null) {
+export async function fetchUsersByUserIds(userIds: number[]) {
   const { data, error } = await supabase
     .from("user")
     .select("id,user_name")

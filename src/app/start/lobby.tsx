@@ -30,31 +30,29 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
   const [lobbyUsers, setLobbyUsers] = useState<User["Row"][]>([]);
 
   useEffect(() => {
-    // adding the room creator to the list of users
-    // if(user){
-    //   setLobbyUsers([user])  
-    // }
-    const channel = supabase.channel("realtime room changes").on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'room_user_mapping'
-    }, async (payload) => {
-      console.log(payload);
-      if (payload.new && payload.new.room_id === roomDetails!.id) {
-        const userDetails = await clientApiFetch(`/api/user/${payload.new.user_id}`, { method: 'GET' })
-        if (!userDetails.error) {
-          let tempLobbyUsers = [...lobbyUsers];
-          tempLobbyUsers.push(userDetails.data);
-          setLobbyUsers(tempLobbyUsers);
+    if (roomDetails) {
+      const channel = supabase.channel("realtime room changes").on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'room_user_mapping'
+      }, async (payload) => {
+        console.log(payload);
+        if (payload.new && payload.new.room_id === roomDetails!.id) {
+          const userDetails = await clientApiFetch(`/api/user/${payload.new.user_id}`, { method: 'GET' })
+          if (!userDetails.error) {
+            let tempLobbyUsers = [...lobbyUsers];
+            tempLobbyUsers.push(userDetails.data);
+            setLobbyUsers(tempLobbyUsers);
+          }
         }
-      }
-    }).subscribe();
+      }).subscribe();
 
-    return () => {
-      supabase.removeChannel(channel)
+      return () => {
+        supabase.removeChannel(channel)
+      }
     }
   }, [roomDetails, lobbyUsers])
 
   useEffect(() => {
-    if (roomMemberDetails && lobbyUsers.length === 0) {
+    if (roomMemberDetails && roomMemberDetails.length > 0 && lobbyUsers.length === 0) {
       const tempLobbyUsers = [...roomMemberDetails];
       setLobbyUsers(tempLobbyUsers)
     }
@@ -62,7 +60,7 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
   return (
     <>
       {
-        roomDetails && user &&
+        lobbyUsers.length > 0 &&
         <>
           <div className="text-lg font-semibold mt-8">Lobby Members</div>
           <div className="mt-4">
