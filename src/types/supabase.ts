@@ -69,6 +69,51 @@ export type Database = {
             referencedRelation: "questions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "public_game_question_mapping_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "random_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_status: {
+        Row: {
+          answer_filling: number
+          created_at: string
+          game_id: number
+          id: number
+          option_filling: number
+          round: number
+          score_watching: number
+        }
+        Insert: {
+          answer_filling?: number
+          created_at?: string
+          game_id: number
+          id?: number
+          option_filling?: number
+          round?: number
+          score_watching?: number
+        }
+        Update: {
+          answer_filling?: number
+          created_at?: string
+          game_id?: number
+          id?: number
+          option_filling?: number
+          round?: number
+          score_watching?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_game_status_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: true
+            referencedRelation: "game"
+            referencedColumns: ["id"]
+          },
         ]
       }
       questions: {
@@ -202,7 +247,56 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "public_user_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "random_questions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "public_user_answers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_game_status: {
+        Row: {
+          created_at: string
+          game_id: number
+          id: number
+          ready_status: boolean
+          score: number
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          game_id: number
+          id?: number
+          ready_status?: boolean
+          score?: number
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          game_id?: number
+          id?: number
+          ready_status?: boolean
+          score?: number
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_user_game_status_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "game"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_user_game_status_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"
@@ -251,6 +345,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "public_user_options_ques_id_fkey"
+            columns: ["ques_id"]
+            isOneToOne: false
+            referencedRelation: "random_questions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "public_user_options_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -261,7 +362,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      random_questions: {
+        Row: {
+          created_at: string | null
+          id: number | null
+          question: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number | null
+          question?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number | null
+          question?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

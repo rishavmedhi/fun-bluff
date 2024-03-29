@@ -1,8 +1,11 @@
+import { RocketIcon } from "@radix-ui/react-icons";
 import LobbyCard from "@/components/LobbyCard";
+import { Button } from "@/components/ui/button";
 import { RoomType, User } from "@/types/collection";
 import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { supabase } from "@/utils/supabase/server";
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const dummySubscribePayload = {
   "schema": "public",
@@ -28,6 +31,8 @@ interface LobbyProps {
 
 function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
   const [lobbyUsers, setLobbyUsers] = useState<User["Row"][]>([]);
+
+  const { toast } = useToast()
 
   useEffect(() => {
     if (roomDetails) {
@@ -57,6 +62,16 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
       setLobbyUsers(tempLobbyUsers)
     }
   }, [roomMemberDetails, lobbyUsers])
+
+  function startGame(){
+    if(lobbyUsers.length<2){
+      toast({
+        'description': "It's just you in the lobby. Add more players to start",
+      })
+    }
+  }
+
+
   return (
     <>
       {
@@ -68,8 +83,10 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
               lobbyUsers.map((user, index) => <LobbyCard key={index} username={user.user_name} />)
             }
           </div>
+          <Button onClick={startGame}>Start <RocketIcon className="mr-2 h-4 w-4" /></Button>
         </>
       }
+      
     </>
   )
 }
