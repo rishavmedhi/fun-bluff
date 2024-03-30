@@ -13,3 +13,18 @@ export async function bulkInsertGameQuestions(questions : bulkInsertFormat[]){
 
   return data;
 }
+
+/**
+ * Fetching questions of a game by game ID
+ * @param gameId ID of the game
+ * @returns ordered list of question ids
+ */
+export async function fetchGameQuestionsByGameId(gameId: number){
+  const {data, error} = await supabase
+    .from("game_question_mapping")
+    .select("question_id")
+    .eq("game_id", gameId)
+  if (error) throw error;
+
+  return data;
+}

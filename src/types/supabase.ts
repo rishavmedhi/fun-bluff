@@ -212,26 +212,36 @@ export type Database = {
       user_answers: {
         Row: {
           created_at: string
+          game_id: number
           id: number
-          option_id: number | null
-          question_id: number | null
-          user_id: number | null
+          option_id: number
+          question_id: number
+          user_id: number
         }
         Insert: {
           created_at?: string
+          game_id: number
           id?: number
-          option_id?: number | null
-          question_id?: number | null
-          user_id?: number | null
+          option_id: number
+          question_id: number
+          user_id: number
         }
         Update: {
           created_at?: string
+          game_id?: number
           id?: number
-          option_id?: number | null
-          question_id?: number | null
-          user_id?: number | null
+          option_id?: number
+          question_id?: number
+          user_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "public_user_answers_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "game"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "public_user_answers_option_id_fkey"
             columns: ["option_id"]
