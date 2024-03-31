@@ -14,6 +14,9 @@ export async function POST(request: Request, { params }: { params: { qid: number
       });
     }
 
+    // TODO: check if options are entered during option_filling stage
+    // TODO: restrict if option is already entered by the user
+
     // fetch userId from deviceId
     const userData = await findUserByDeviceId(deviceId!);
     if(!userData || userData.length===0){

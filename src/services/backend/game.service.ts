@@ -1,6 +1,7 @@
 import { fetchRoomDetailsByGameId } from "@/repo/game.repo";
 import { fetchGameQuestionsByGameId } from "@/repo/gameQuestionMapping.repo";
 import { fetchGameStatus, updateGameStatus } from "@/repo/gameStatus.repo";
+import { fetchRoomMembersByRoomId } from "@/repo/roomUserMapping.repo";
 import { fetchUserAnswersByGameId } from "@/repo/userAnswers.repo";
 import { fetchReadyGameUsersStatus } from "@/repo/userGameStatus.repo";
 import { fetchGameUserOptionsByQuesId } from "@/repo/userOptions.repo";
@@ -8,7 +9,12 @@ import { fetchGameUserOptionsByQuesId } from "@/repo/userOptions.repo";
 export async function reviewGameSituation(gameId: number) {
   try {
     // fetch room details from the game
-    const roomDetails = await fetchRoomDetailsByGameId(gameId);
+    const gameData = await fetchRoomDetailsByGameId(gameId);
+    if(gameData && gameData.length === 0){
+      throw new Error("Failed to fetch from game db");
+    }
+
+    const roomMemberData = await fetchRoomMembersByRoomId(gameData[0].room_id!);
 
     // check what is the current state
     const gameStatus = await fetchGameStatus(gameId);
@@ -34,7 +40,7 @@ export async function reviewGameSituation(gameId: number) {
         currentRoundQuestionId!
       );
       // comparing if user options present is same as number of room members
-      if (allUserOptions.length === roomDetails[0].room_user_mapping.length) {
+      if (allUserOptions.length === roomMemberData.length) {
         // update game status
         await updateGameStatus(
           { option_filling: 2, answer_filling: 1 },
@@ -58,7 +64,7 @@ export async function reviewGameSituation(gameId: number) {
         currentRoundQuestionId!
       );
       if (
-        userSelectedAnswers.length === roomDetails[0].room_user_mapping.length
+        userSelectedAnswers.length === roomMemberData.length
       ) {
         // update game status
         await updateGameStatus(
@@ -84,7 +90,7 @@ export async function reviewGameSituation(gameId: number) {
     // mark all users as not ready
     if (scoreWatching < 2) {
       const readyUsers = await fetchReadyGameUsersStatus(gameId);
-      if (readyUsers.length === roomDetails[0].room_user_mapping.length) {
+      if (readyUsers.length === roomMemberData.length) {
         if (gameStatus[0].round < allGameQuestions.length) {
           await updateGameStatus(
             {
@@ -112,6 +118,6 @@ export async function reviewGameSituation(gameId: number) {
       }
     }
   } catch (error) {
-    throw error;
+    console.trace(error)
   }
 }

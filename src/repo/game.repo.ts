@@ -18,7 +18,7 @@ export async function createGame(roomId: number) {
 export async function fetchRoomDetailsByGameId(gameId: number){
   const { data, error } = await supabase
     .from("game")
-    .select("id, room_id, room_user_mapping(user_id)")
+    .select("id, room_id")
     .eq("id", gameId)
   if (error) throw error;
 
