@@ -50,8 +50,7 @@ function OptionFilling({ gid, userStatus }: Props) {
 
   return (
     <>
-      <div>OptionFilling component</div>
-      <Input name="username" onChange={(e) => setUserOption(e.target.value)} value={userOption}/>
+      <Input name="username" onChange={(e) => setUserOption(e.target.value)} value={userOption} placeholder="Enter your response"/>
       {
         !userOptionSubmitted ? <Button onClick={submitOption}>Submit</Button> : <div>Waiting for other players</div>
       }

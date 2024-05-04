@@ -5,6 +5,7 @@ import { GameStatusType, QuestionType } from "@/types/collection";
 import OptionFilling from "./components/OptionFilling";
 import { fetchUserDeviceId } from "@/utils/user.utils";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
+import Loading from "@/components/Loading";
 
 interface gameStatusResponse {
   message: string,
@@ -29,6 +30,7 @@ function Game({ params }: { params: { gid: number } }) {
   const [gameState, setGameState] = useState<gameStateEnum>(gameStateEnum.OPTION_FILLING);
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [userStatus, setUserStatus] = useState<userStatus>({});
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function init() {
@@ -53,23 +55,29 @@ function Game({ params }: { params: { gid: number } }) {
         }
         setUserStatus(res.data.userStatus)
       }
+      setLoading(false);
     }
     init();
   }, [params.gid])
 
   return (
-    <div>
-      <h2>{currentQuestion}</h2>
+    <>
+      <div>
+        <h2>{currentQuestion}</h2>
+        {
+          gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={params.gid} userStatus={userStatus} />
+        }
+        {
+          gameState === gameStateEnum.ANSWER_FILLING && <div>Answer Filling component</div>
+        }
+        {
+          gameState === gameStateEnum.SCORE_WATCHING && <div>Score Watching component</div>
+        }
+      </div>
       {
-        gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={params.gid} userStatus={userStatus} />
+        loading && <Loading />
       }
-      {
-        gameState === gameStateEnum.ANSWER_FILLING && <div>Answer Filling component</div>
-      }
-      {
-        gameState === gameStateEnum.SCORE_WATCHING && <div>Score Watching component</div>
-      }
-    </div>
+    </>
   )
 }
 
