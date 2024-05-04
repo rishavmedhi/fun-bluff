@@ -6,6 +6,8 @@ import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { supabase } from "@/utils/supabase/server";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { fetchUserDeviceId } from "@/utils/user.utils";
 
 const dummySubscribePayload = {
   "schema": "public",
@@ -30,31 +32,43 @@ interface LobbyProps {
 }
 
 function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
+  const router = useRouter();
   const [lobbyUsers, setLobbyUsers] = useState<User["Row"][]>([]);
 
   const { toast } = useToast()
 
   useEffect(() => {
     if (roomDetails) {
-      const channel = supabase.channel("realtime room changes").on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'room_user_mapping'
-      }, async (payload) => {
-        console.log(payload);
-        if (payload.new && payload.new.room_id === roomDetails!.id) {
-          const userDetails = await clientApiFetch(`/api/user/${payload.new.user_id}`, { method: 'GET' })
-          if (!userDetails.error) {
-            let tempLobbyUsers = [...lobbyUsers];
-            tempLobbyUsers.push(userDetails.data);
-            setLobbyUsers(tempLobbyUsers);
+      const channel = supabase.channel("realtime room game changes")
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'room_user_mapping', filter: 'room_id=eq.'+roomDetails!.id
+        }, async (payload) => {
+          console.log("realtime room changes", payload);
+          if (payload.new && payload.new.room_id === roomDetails!.id) {
+            const userDetails = await clientApiFetch(`/api/user/${payload.new.user_id}`, { method: 'GET' })
+            if (!userDetails.error) {
+              let tempLobbyUsers = [...lobbyUsers];
+              tempLobbyUsers.push(userDetails.data);
+              setLobbyUsers(tempLobbyUsers);
+            }
+          }
+        })
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'game', filter: 'room_id=eq.'+roomDetails!.id
+        }, async (payload) => {
+          console.log("realtime game changes", payload);
+          if (mode === "JOINER" && payload.new && payload.new.room_id === roomDetails!.id && payload.new.id) {
+            router.push('/game/' + payload.new.id);
           }
         }
-      }).subscribe();
+        )
+        .subscribe();
 
       return () => {
         supabase.removeChannel(channel)
       }
     }
-  }, [roomDetails, lobbyUsers])
+  }, [roomDetails, lobbyUsers, mode, router])
 
   useEffect(() => {
     if (roomMemberDetails && roomMemberDetails.length > 0 && lobbyUsers.length === 0) {
@@ -63,14 +77,33 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
     }
   }, [roomMemberDetails, lobbyUsers])
 
-  function startGame(){
-    if(lobbyUsers.length<2){
+  async function startGame() {
+    if (lobbyUsers.length < 2) {
       toast({
         'description': "It's just you in the lobby. Add more players to start",
       })
+      return;
+    }
+    // make API call to start game
+    const res = await clientApiFetch("api/start/game", {
+      method: 'POST',
+      headers: {
+        deviceId: fetchUserDeviceId()
+      },
+      body: {
+        roomId: roomDetails?.id
+      }
+    });
+    if (!res.error) {
+      router.push('/game/' + res.data.gameId);
+    }
+    else {
+      toast({
+        'description': res.message,
+        'variant': 'destructive'
+      })
     }
   }
-
 
   return (
     <>
@@ -86,7 +119,6 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
           <Button onClick={startGame}>Start <RocketIcon className="mr-2 h-4 w-4" /></Button>
         </>
       }
-      
     </>
   )
 }

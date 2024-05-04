@@ -6,6 +6,7 @@ import OptionFilling from "./components/OptionFilling";
 import { fetchUserDeviceId } from "@/utils/user.utils";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
 import Loading from "@/components/Loading";
+import { supabase } from "@/utils/supabase/server";
 
 interface gameStatusResponse {
   message: string,
@@ -58,7 +59,27 @@ function Game({ params }: { params: { gid: number } }) {
       setLoading(false);
     }
     init();
+
+    if (params.gid) {
+      const channel = supabase.channel("realtime game status changes").on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'game_status'
+      }, async (payload) => {
+        console.log("game subscription", payload);
+        if (payload.new && payload.new.game_id === params.gid) {
+          setGameStatus(payload.new as GameStatusType["Row"]);
+        }
+      }).subscribe();
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    }
+
   }, [params.gid])
+
+  // useEffect(() => {
+    
+  // }, [params.gid])
 
   return (
     <>
