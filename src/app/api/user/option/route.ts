@@ -38,7 +38,8 @@ export async function POST(request: Request) {
     
     // fetch question details from game question mapping
     const gameQuestionMapping = await fetchGameQuestionsByGameId(res.gameId);
-    const roundQid = gameQuestionMapping[gameStatus[0].round];
+    // round is reduced by 1 since round is initialised from 1
+    const roundQid = gameQuestionMapping[gameStatus[0].round-1];
 
     // check if option is already inserted in db
     const userOption = await fetchOptionByUser(userData[0].id, res.gameId, roundQid.question_id!);

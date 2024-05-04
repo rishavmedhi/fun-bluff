@@ -25,7 +25,8 @@ export async function GET(
 
     // fetching question of the round
     const gameQuestionMapping = await fetchGameQuestionsByGameId(params.gid);
-    const roundQid = gameQuestionMapping[gameStatus[0].round];
+    // round is decreased by 1 as round is initialised as 1
+    const roundQid = gameQuestionMapping[gameStatus[0].round-1];
     const questionData = await fetchQuestionById(roundQid.question_id!);
 
     // return user state
