@@ -34,15 +34,17 @@ export async function addUserOption(
  * Fetches all user options of a given question in a given game
  * @param gameId
  * @param quesId
+ * @param [publicMode=true] restricts user_id in the response, pass as false if user_id is needed in response
  * @returns
  */
 export async function fetchGameUserOptionsByQuesId(
   gameId: number,
-  quesId: number
+  quesId: number,
+  publicMode: boolean = true
 ) {
   const { data, error } = await supabase
     .from("user_options")
-    .select("user_id, user_option")
+    .select(publicMode?"id, user_option":"id, user_id, user_option")
     .eq("game_id", gameId)
     .eq("ques_id", quesId);
 

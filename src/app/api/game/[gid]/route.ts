@@ -5,6 +5,7 @@ import { findUserByDeviceId } from "@/repo/user.repo";
 import { fetchOptionByUser } from "@/repo/userOptions.repo";
 import { headers } from "next/headers";
 import { userStatus } from "../../../../types/api/game/[gid]/responseTypes";
+import { catchHandler } from "@/utils/error.utils";
 
 export async function GET(
   request: Request,
@@ -62,10 +63,10 @@ export async function GET(
         };
       }
     }
-    if (gameStatus[0].answer_filling < 2) {
+    else if (gameStatus[0].answer_filling < 2) {
       // check if user has attempted an answer for the current round
     }
-    if (gameStatus[0].score_watching < 2) {
+    else if (gameStatus[0].score_watching < 2) {
       // check if user is ready
     }
 
@@ -79,10 +80,6 @@ export async function GET(
       error: false,
     });
   } catch (e) {
-    console.log(e);
-    return Response.json({
-      message: "Something went wrong! Please try again later",
-      error: true,
-    });
+    return catchHandler(e);
   }
 }

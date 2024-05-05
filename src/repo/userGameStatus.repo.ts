@@ -68,3 +68,21 @@ export async function updateGameUserReadyStatus(readyStatus: boolean, gameId: nu
 
   return data;
 }
+
+/**
+ * Fetching the game status of a particular user in a particular game
+ * @param gameId 
+ * @param userId 
+ * @returns 
+ */
+export async function fetchUserGameStatusbyUserIdGameId(gameId: number, userId: number){
+  const { data, error } = await supabase
+    .from("user_game_status")
+    .select()
+    .eq("game_id", gameId)
+    .eq("user_id", userId)
+
+  if (error) throw error;
+
+  return data;
+}
