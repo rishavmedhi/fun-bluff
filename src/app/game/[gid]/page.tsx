@@ -26,7 +26,7 @@ enum gameStateEnum {
   SCORE_WATCHING = 2
 }
 
-function Game({ params }: { params: { gid: number } }) {
+function Game({ params }: { params: { gid: string } }) {
   const [gameStatus, setGameStatus] = useState<GameStatusType["Row"] | undefined>(undefined);
   const [gameState, setGameState] = useState<gameStateEnum>(gameStateEnum.OPTION_FILLING);
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
@@ -60,33 +60,37 @@ function Game({ params }: { params: { gid: number } }) {
     }
     init();
 
-    if (params.gid) {
-      const channel = supabase.channel("realtime game status changes").on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'game_status'
-      }, async (payload) => {
-        console.log("game subscription", payload);
-        if (payload.new && payload.new.game_id === params.gid) {
-          setGameStatus(payload.new as GameStatusType["Row"]);
+    
+    const channel = supabase.channel("realtime game_status changes").on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'game_status', filter: 'game_id=eq.'+params.gid
+    }, async (payload) => {
+      console.log("game_status subscription", payload)
+      if (payload.new && payload.new.game_id === parseInt(params.gid)) {
+        setGameStatus(payload.new as GameStatusType["Row"]);
+        if (payload.new.option_filling < 2) {
+          setGameState(gameStateEnum.OPTION_FILLING);
         }
-      }).subscribe();
-
-      return () => {
-        supabase.removeChannel(channel)
+        else if (payload.new.answer_filling < 2) {
+          setGameState(gameStateEnum.ANSWER_FILLING);
+        }
+        else if (payload.new.score_watching < 2) {
+          setGameState(gameStateEnum.SCORE_WATCHING);
+        }
       }
+    }).subscribe();
+
+    return () => {
+      supabase.removeChannel(channel)
     }
 
   }, [params.gid])
-
-  // useEffect(() => {
-    
-  // }, [params.gid])
 
   return (
     <>
       <div>
         <h2>{currentQuestion}</h2>
         {
-          gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={params.gid} userStatus={userStatus} />
+          gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={parseInt(params.gid)} userStatus={userStatus} />
         }
         {
           gameState === gameStateEnum.ANSWER_FILLING && <div>Answer Filling component</div>
