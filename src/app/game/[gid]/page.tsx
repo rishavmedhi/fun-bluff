@@ -7,6 +7,7 @@ import { fetchUserDeviceId } from "@/utils/user.utils";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
 import Loading from "@/components/Loading";
 import { supabase } from "@/utils/supabase/server";
+import AnswerFilling from "./components/AnswerFilling";
 
 interface gameStatusResponse {
   message: string,
@@ -93,7 +94,7 @@ function Game({ params }: { params: { gid: string } }) {
           gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={parseInt(params.gid)} userStatus={userStatus} />
         }
         {
-          gameState === gameStateEnum.ANSWER_FILLING && <div>Answer Filling component</div>
+          gameState === gameStateEnum.ANSWER_FILLING && <AnswerFilling gid={parseInt(params.gid)}  userStatus={userStatus}/>
         }
         {
           gameState === gameStateEnum.SCORE_WATCHING && <div>Score Watching component</div>

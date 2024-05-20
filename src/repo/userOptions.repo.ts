@@ -44,7 +44,7 @@ export async function fetchGameUserOptionsByQuesId(
 ) {
   const { data, error } = await supabase
     .from("user_options")
-    .select(publicMode?"id, user_option":"id, user_id, user_option")
+    .select("id, user_id, user_option")
     .eq("game_id", gameId)
     .eq("ques_id", quesId);
 

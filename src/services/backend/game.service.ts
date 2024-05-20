@@ -3,8 +3,20 @@ import { fetchGameQuestionsByGameId } from "@/repo/gameQuestionMapping.repo";
 import { fetchGameStatus, updateGameStatus } from "@/repo/gameStatus.repo";
 import { fetchRoomMembersByRoomId } from "@/repo/roomUserMapping.repo";
 import { fetchUserAnswersByGameId } from "@/repo/userAnswers.repo";
-import { fetchReadyGameUsersStatus } from "@/repo/userGameStatus.repo";
+import { fetchAllGameUsersStatus, fetchReadyGameUsersStatus, updateUserScore } from "@/repo/userGameStatus.repo";
 import { fetchGameUserOptionsByQuesId } from "@/repo/userOptions.repo";
+
+interface InAnswerFrequency {
+  [key: number]: number
+}
+
+interface InOptionToUserIdMapping {
+  [key: number]: number
+}
+
+interface InUserIdtoFrequency {
+  [key: number]: number
+}
 
 export async function reviewGameSituation(gameId: number) {
   try {
@@ -71,7 +83,49 @@ export async function reviewGameSituation(gameId: number) {
           { answer_filling: 2, score_watching: 1 },
           gameId
         );
-        // TODO: evaluate user scores
+        // creating user answer occurence mapping
+        const answerFrequency:InAnswerFrequency= {};
+        userSelectedAnswers.map((userAnswer) => {
+          if(answerFrequency[userAnswer.option_id])
+            answerFrequency[userAnswer.option_id] = answerFrequency[userAnswer.option_id]+1;
+          else
+          answerFrequency[userAnswer.option_id] = 1;
+        })
+
+        // fetching user options for the question of the game
+        const allUserOptions = await fetchGameUserOptionsByQuesId(
+          gameId,
+          currentRoundQuestionId!
+        );
+        // create useroption ->  userid mapping
+        const optionToUserIdMapping:InOptionToUserIdMapping = {};
+        allUserOptions.map((userOption) => {
+          optionToUserIdMapping[userOption.id] = userOption.user_id!;
+        })
+
+        // create userId -> occurence mapping
+        const userIdtoFrequency:InUserIdtoFrequency = {};
+        Object.keys(answerFrequency).map(optionKey => {
+          const numOptionKey = parseInt(optionKey)
+          userIdtoFrequency[optionToUserIdMapping[numOptionKey]] = answerFrequency[numOptionKey]? answerFrequency[numOptionKey]: 0
+        })
+
+        // fetching all user status
+        const allGameUserStatus = await fetchAllGameUsersStatus(gameId);
+
+        // update user score in user_game_status
+        allGameUserStatus.map((userStatus) => {
+          // updating if there is an increase in score
+          if(userIdtoFrequency[userStatus.user_id]){
+            updateUserScore(userStatus.user_id, userStatus.score+userIdtoFrequency[userStatus.user_id],gameId)
+          }
+        })
+
+        // END answer_filling state, start score_watching state
+        await updateGameStatus(
+          { answer_filling: 2, score_watching: 1 },
+          gameId
+        );
 
         return;
       } else {

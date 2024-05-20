@@ -86,3 +86,22 @@ export async function fetchUserGameStatusbyUserIdGameId(gameId: number, userId: 
 
   return data;
 }
+
+/**
+ * Update the score of the user
+ * @param userId 
+ * @param score 
+ * @param gameId 
+ * @returns 
+ */
+export async function updateUserScore(userId: number, score: number, gameId: number){
+  const { data, error } = await supabase
+    .from("user_game_status")
+    .update({score: score})
+    .eq("game_id", gameId)
+    .eq("user_id", userId)
+
+  if (error) throw error;
+
+  return data;
+}
