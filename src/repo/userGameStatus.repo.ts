@@ -105,3 +105,20 @@ export async function updateUserScore(userId: number, score: number, gameId: num
 
   return data;
 }
+
+/**
+ * Fetching user score and user name of all users in a game
+ * UserId is not projected
+ * @param gameId 
+ * @returns 
+ */
+export async function fetchUserNameScore(gameId: number){
+  const {data, error} = await supabase
+    .from("user_game_status")
+    .select("score, user(user_name)")
+    .eq("game_id", gameId)
+  
+  if (error) throw error;
+
+  return data;
+}
