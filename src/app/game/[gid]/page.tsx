@@ -8,6 +8,7 @@ import { userStatus } from "@/types/api/game/[gid]/responseTypes";
 import Loading from "@/components/Loading";
 import { supabase } from "@/utils/supabase/server";
 import AnswerFilling from "./components/AnswerFilling";
+import ScoreWatching from "./components/ScoreWatching";
 
 interface gameStatusResponse {
   message: string,
@@ -97,7 +98,7 @@ function Game({ params }: { params: { gid: string } }) {
           gameState === gameStateEnum.ANSWER_FILLING && <AnswerFilling gid={parseInt(params.gid)}  userStatus={userStatus}/>
         }
         {
-          gameState === gameStateEnum.SCORE_WATCHING && <div>Score Watching component</div>
+          gameState === gameStateEnum.SCORE_WATCHING && <ScoreWatching gid={parseInt(params.gid)} userStatus={userStatus}/>
         }
       </div>
       {
