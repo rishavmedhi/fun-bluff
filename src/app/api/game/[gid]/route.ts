@@ -6,6 +6,7 @@ import { fetchOptionByUser } from "@/repo/userOptions.repo";
 import { headers } from "next/headers";
 import { userStatus } from "../../../../types/api/game/[gid]/responseTypes";
 import { catchHandler } from "@/utils/error.utils";
+import { fetchUserGameStatusbyUserIdGameId } from "@/repo/userGameStatus.repo";
 
 export async function GET(
   request: Request,
@@ -68,6 +69,17 @@ export async function GET(
     }
     else if (gameStatus[0].score_watching < 2) {
       // check if user is ready
+      const userStatusDb = await fetchUserGameStatusbyUserIdGameId(params.gid, userData[0].id);
+      if(userStatusDb && userStatusDb.length>0){
+        userStatus.score_watching = {
+          readyStatus: userStatusDb[0].ready_status
+        }
+      }
+      else{
+        userStatus.score_watching = {
+          readyStatus: false
+        }
+      }
     }
 
     return Response.json({

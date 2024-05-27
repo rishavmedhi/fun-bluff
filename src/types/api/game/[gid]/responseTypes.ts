@@ -4,5 +4,7 @@ export interface userStatus {
     option?: string|null
   },
   answer_filling?: object,
-  score_watching?: object
+  score_watching?: {
+    readyStatus: boolean
+  }
 }

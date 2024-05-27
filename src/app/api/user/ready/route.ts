@@ -1,3 +1,4 @@
+import { fetchGameStatus } from "@/repo/gameStatus.repo";
 import { findUserByDeviceId } from "@/repo/user.repo";
 import { updateGameUserReadyStatus } from "@/repo/userGameStatus.repo";
 import { reviewGameSituation } from "@/services/backend/game.service";
@@ -22,6 +23,22 @@ export async function POST(request: Request) {
         message: "User not found",
         error: true,
       }); 
+    }
+
+    // check game status if it is on score_watching
+    const gameStatus = await fetchGameStatus(res.gameId);
+    if (!gameStatus || gameStatus.length === 0) {
+      return Response.json({
+        message: "Game data cannot be found",
+        error: true,
+      });
+    }
+
+    if (gameStatus[0].answer_filling < 2) {
+      return Response.json({
+        message: "User cannot be marked as ready in this game state",
+        error: true,
+      });
     }
 
     // update user game ready status

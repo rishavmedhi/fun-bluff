@@ -1,4 +1,5 @@
 import UserScoreCard from "@/components/UserScoreCard";
+import { Button } from "@/components/ui/button";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
 import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { fetchUserDeviceId } from "@/utils/user.utils";
@@ -30,6 +31,7 @@ interface InUser {
 
 function ScoreWatching({ gid, userStatus }: Props) {
   const [userScores, setUserScores] = useState<InUserScore[]>([]);
+  const [playerReady, setPlayerReady] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchGameScores() {
@@ -46,7 +48,29 @@ function ScoreWatching({ gid, userStatus }: Props) {
 
     if (gid)
       fetchGameScores();
-  }, [gid])
+  }, [gid]);
+
+  useEffect(() => {
+    if (userStatus && userStatus.score_watching) {
+      setPlayerReady(userStatus.score_watching.readyStatus);
+    }
+  }, [userStatus])
+
+  async function makePlayerReady() {
+    const res = await clientApiFetch(`/api/user/answer`, {
+      method: 'POST',
+      headers: {
+        deviceId: fetchUserDeviceId()
+      },
+      body: {
+        gameId: gid
+      }
+    });
+
+    if (!res.error) {
+      setPlayerReady(true)
+    }
+  }
 
 
   return (
@@ -59,6 +83,18 @@ function ScoreWatching({ gid, userStatus }: Props) {
           :
           null
       }
+      <div className="flex justify-center">
+        {
+          userScores && userScores.length > 0 ?
+            !playerReady ?
+
+              <Button onClick={makePlayerReady}>I&apos;m Ready</Button>
+              :
+              <div>Waiting for other players</div>
+            :
+            null
+        }
+      </div>
     </>
   )
 }
