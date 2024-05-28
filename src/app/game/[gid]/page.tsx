@@ -34,6 +34,7 @@ function Game({ params }: { params: { gid: string } }) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [userStatus, setUserStatus] = useState<userStatus>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [refetchGameData, setRefetchGameData] = useState<boolean>(false)
 
   useEffect(() => {
     async function init() {
@@ -60,8 +61,13 @@ function Game({ params }: { params: { gid: string } }) {
       }
       setLoading(false);
     }
-    init();
+    if(!gameStatus)
+      init();
 
+    if(gameStatus && refetchGameData){
+      init();
+      setRefetchGameData(false);
+    }
     
     const channel = supabase.channel("realtime game_status changes").on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'game_status', filter: 'game_id=eq.'+params.gid
@@ -71,6 +77,7 @@ function Game({ params }: { params: { gid: string } }) {
         setGameStatus(payload.new as GameStatusType["Row"]);
         if (payload.new.option_filling < 2) {
           setGameState(gameStateEnum.OPTION_FILLING);
+          setRefetchGameData(true)
         }
         else if (payload.new.answer_filling < 2) {
           setGameState(gameStateEnum.ANSWER_FILLING);
@@ -85,7 +92,7 @@ function Game({ params }: { params: { gid: string } }) {
       supabase.removeChannel(channel)
     }
 
-  }, [params.gid])
+  }, [params.gid, gameStatus, refetchGameData])
 
   return (
     <>

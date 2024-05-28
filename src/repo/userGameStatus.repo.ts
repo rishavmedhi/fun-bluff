@@ -122,3 +122,14 @@ export async function fetchUserNameScore(gameId: number){
 
   return data;
 }
+
+export async function updateAllUserReadyStatusbyGameId(gameId: number, targetStatus: boolean){
+  const {data, error} = await supabase
+    .from("user_game_status")
+    .update({ready_status: targetStatus})
+    .eq("game_id", gameId)
+  
+  if (error) throw error;
+
+  return data;
+}

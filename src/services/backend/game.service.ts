@@ -3,7 +3,7 @@ import { fetchGameQuestionsByGameId } from "@/repo/gameQuestionMapping.repo";
 import { fetchGameStatus, updateGameStatus } from "@/repo/gameStatus.repo";
 import { fetchRoomMembersByRoomId } from "@/repo/roomUserMapping.repo";
 import { fetchUserAnswersByGameId } from "@/repo/userAnswers.repo";
-import { fetchAllGameUsersStatus, fetchReadyGameUsersStatus, updateUserScore } from "@/repo/userGameStatus.repo";
+import { fetchAllGameUsersStatus, fetchReadyGameUsersStatus, updateAllUserReadyStatusbyGameId, updateUserScore } from "@/repo/userGameStatus.repo";
 import { fetchGameUserOptionsByQuesId } from "@/repo/userOptions.repo";
 
 interface InAnswerFrequency {
@@ -155,6 +155,7 @@ export async function reviewGameSituation(gameId: number) {
             },
             gameId
           );
+          await updateAllUserReadyStatusbyGameId(gameId, false);
           return;
         }
         else{

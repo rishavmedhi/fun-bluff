@@ -57,7 +57,7 @@ function ScoreWatching({ gid, userStatus }: Props) {
   }, [userStatus])
 
   async function makePlayerReady() {
-    const res = await clientApiFetch(`/api/user/answer`, {
+    const res = await clientApiFetch(`/api/user/ready`, {
       method: 'POST',
       headers: {
         deviceId: fetchUserDeviceId()
