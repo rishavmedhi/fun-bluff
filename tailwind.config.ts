@@ -71,11 +71,21 @@ const config = {
           "0%,70%,100%": { opacity: "1" },
           "20%,50%": { opacity: "0" },
         },
+        "homepage-text": {
+          from: { transform : "translateY(-100%)", opacity: "0"},
+          to: {transform : "translateY(0%)", opacity: "1"}
+        },
+        "homepage-btn": {
+          "0%,60%": { transform : "translateX(-30%)", opacity: "0"},
+          "100%": {transform : "translateX(0%)", opacity: "1"}
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "homepage-text": "homepage-text 0.5s ease-in",
+        "homepage-btn": "homepage-btn 1s ease-in"
       },
     },
   },
