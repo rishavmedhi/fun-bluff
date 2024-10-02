@@ -111,12 +111,12 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
         lobbyUsers.length > 0 &&
         <>
           <div className="text-lg font-semibold mt-8">Lobby Members</div>
-          <div className="mt-4">
+          <div className="mt-4 w-full">
             {
               lobbyUsers.map((user, index) => <LobbyCard key={index} username={user.user_name} />)
             }
           </div>
-          <Button onClick={startGame}>Start <RocketIcon className="mr-2 h-4 w-4" /></Button>
+          <Button onClick={startGame} className="mt-8 gap-2 w-full">Start <RocketIcon className="h-4 w-4" /></Button>
         </>
       }
     </>

@@ -9,6 +9,8 @@ import Loading from "@/components/Loading";
 import { supabase } from "@/utils/supabase/server";
 import AnswerFilling from "./components/AnswerFilling";
 import ScoreWatching from "./components/ScoreWatching";
+import CenterContainer from "@/components/CenterContainer";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface gameStatusResponse {
   message: string,
@@ -95,23 +97,26 @@ function Game({ params }: { params: { gid: string } }) {
   }, [params.gid, gameStatus, refetchGameData])
 
   return (
-    <>
-      <div>
-        <h2>{currentQuestion}</h2>
-        {
-          gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={parseInt(params.gid)} userStatus={userStatus} />
-        }
-        {
-          gameState === gameStateEnum.ANSWER_FILLING && <AnswerFilling gid={parseInt(params.gid)}  userStatus={userStatus}/>
-        }
-        {
-          gameState === gameStateEnum.SCORE_WATCHING && <ScoreWatching gid={parseInt(params.gid)} userStatus={userStatus}/>
-        }
-      </div>
+    <CenterContainer>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader />
+        <CardContent>
+          <div className="text-xl mb-2">{currentQuestion}</div>
+          {
+            gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={parseInt(params.gid)} userStatus={userStatus} />
+          }
+          {
+            gameState === gameStateEnum.ANSWER_FILLING && <AnswerFilling gid={parseInt(params.gid)}  userStatus={userStatus}/>
+          }
+          {
+            gameState === gameStateEnum.SCORE_WATCHING && <ScoreWatching gid={parseInt(params.gid)} userStatus={userStatus}/>
+          }
+        </CardContent>
+      </Card>
       {
         loading && <Loading />
       }
-    </>
+    </CenterContainer>
   )
 }
 

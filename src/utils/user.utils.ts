@@ -15,12 +15,21 @@ export function fetchUserDeviceId(): string{
   }
 }
 
-export function updateLocalUsername(userName: string){
+export function updateLocalLastUsedUsername(userName: string){
   if(localStorage?.getItem("username") === userName ){
     return localStorage.getItem("username");
   }
   else{
     // storing new username
     localStorage.setItem("username", userName);
+  }
+}
+
+export function fetchLocalLastUsedUserName(){
+  if(localStorage?.getItem("username")){
+    return localStorage.getItem("username");
+  }
+  else{
+    return ""
   }
 }

@@ -6,11 +6,18 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import React from "react"
+import React from "react";
 
-export default function OtpInput({onValueChange, value}) {
+export default function OtpInput({ onValueChange, value }) {
   return (
     <div className="space-y-2">
+      <div className="text-center text-base mb-2 font-medium">
+        {value === "" ? (
+          <>Enter the room code</>
+        ) : (
+          <>Room Code</>
+        )}
+      </div>
       <InputOTP
         maxLength={6}
         pattern={"^[a-zA-Z]+$"}
@@ -19,18 +26,14 @@ export default function OtpInput({onValueChange, value}) {
         render={({ slots }) => (
           <InputOTPGroup>
             {slots.map((slot, index) => (
-              <InputOTPSlot key={index} {...slot} />
+              <InputOTPSlot
+                key={index}
+                {...slot}
+              />
             ))}{" "}
           </InputOTPGroup>
         )}
       />
-      <div className="text-center text-sm">
-        {value === "" ? (
-          <>Enter the room code.</>
-        ) : (
-          <>You entered: {value}</>
-        )}
-      </div>
     </div>
   );
 }
