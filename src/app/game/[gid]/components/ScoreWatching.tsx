@@ -1,9 +1,11 @@
 import UserScoreCard from "@/components/UserScoreCard";
-import { Button } from "@/components/ui/button";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
 import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { fetchUserDeviceId } from "@/utils/user.utils";
 import { useEffect, useState } from "react";
+import ContentLoading from "@/components/ContentLoading";
+import WaitingForPlayers from "@/components/text/WaitingForPlayers";
+import Button from "@/components/Button";
 
 interface Props {
   gid: number,
@@ -32,9 +34,12 @@ interface InUser {
 function ScoreWatching({ gid, userStatus }: Props) {
   const [userScores, setUserScores] = useState<InUserScore[]>([]);
   const [playerReady, setPlayerReady] = useState<boolean>(false);
+  const [fetchScoresLoading, setFetchScoresLoading] = useState<boolean>(false);
+  const [readyBtnClickLoading, setReadyBtnClickLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchGameScores() {
+      setFetchScoresLoading(true);
       const res: InScoreAPIResponse = await clientApiFetch(`/api/game/${gid}/score`, {
         method: 'GET',
         headers: {
@@ -44,6 +49,7 @@ function ScoreWatching({ gid, userStatus }: Props) {
       if (!res.error) {
         setUserScores(res.data.score)
       }
+      setFetchScoresLoading(false);
     }
 
     if (gid)
@@ -57,6 +63,7 @@ function ScoreWatching({ gid, userStatus }: Props) {
   }, [userStatus])
 
   async function makePlayerReady() {
+    setReadyBtnClickLoading(true);
     const res = await clientApiFetch(`/api/user/ready`, {
       method: 'POST',
       headers: {
@@ -70,31 +77,37 @@ function ScoreWatching({ gid, userStatus }: Props) {
     if (!res.error) {
       setPlayerReady(true)
     }
+    setReadyBtnClickLoading(false);
   }
 
 
   return (
     <>
-      {
-        userScores && userScores.length > 0 ?
-          userScores.map((us) =>
-            <UserScoreCard username={us.user.user_name} key={crypto.randomUUID()} userscore={us.score} />
-          )
-          :
-          null
-      }
-      <div className="flex justify-center">
+      <div className="mt-8">
         {
-          userScores && userScores.length > 0 ?
-            !playerReady ?
-
-              <Button onClick={makePlayerReady}>I&apos;m Ready</Button>
+          fetchScoresLoading ? <ContentLoading loadingText="Loading scores..." /> :
+            userScores && userScores.length > 0 ?
+              userScores.map((us) =>
+                <UserScoreCard username={us.user.user_name} key={crypto.randomUUID()} userscore={us.score} />
+              )
               :
-              <div>Waiting for other players</div>
-            :
-            null
+              null
         }
       </div>
+      {
+        !fetchScoresLoading &&
+        <div className="flex justify-center mt-12">
+          {
+            userScores && userScores.length > 0 ?
+              !playerReady ?
+                <Button onClick={makePlayerReady} isLoading={readyBtnClickLoading}>I&apos;m Ready</Button>
+                :
+                <WaitingForPlayers />
+              :
+              null
+          }
+        </div>
+      }
     </>
   )
 }

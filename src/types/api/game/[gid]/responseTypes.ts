@@ -3,7 +3,10 @@ export interface userStatus {
     optionFilled: boolean,
     option?: string|null
   },
-  answer_filling?: object,
+  answer_filling?: {
+    answerFilled: boolean,
+    answer?: number|null
+  },
   score_watching?: {
     readyStatus: boolean
   }

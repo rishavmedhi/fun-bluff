@@ -50,3 +50,22 @@ export async function addUserAnswer(
   if (error) throw error;
   return data;
 }
+
+/**
+ * Fetch user answer for a question in a game
+ * @param userId 
+ * @param gameId 
+ * @param questionId 
+ * @returns 
+ */
+export async function fetchUserQuestionAnswer(userId: number, gameId: number, questionId: number){
+  const { data, error } = await supabase
+    .from("user_answers")
+    .select()
+    .eq("user_id", userId)
+    .eq("game_id", gameId)
+    .eq("question_id", questionId);
+  
+  if (error) throw error;
+  return data;
+}

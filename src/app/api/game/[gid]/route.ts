@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { userStatus } from "../../../../types/api/game/[gid]/responseTypes";
 import { catchHandler } from "@/utils/error.utils";
 import { fetchUserGameStatusbyUserIdGameId } from "@/repo/userGameStatus.repo";
+import { fetchUserQuestionAnswer } from "@/repo/userAnswers.repo";
 
 export async function GET(
   request: Request,
@@ -66,6 +67,13 @@ export async function GET(
     }
     else if (gameStatus[0].answer_filling < 2) {
       // check if user has attempted an answer for the current round
+      const userAnswer = await fetchUserQuestionAnswer(userData[0].id, params.gid, roundQid.question_id!);
+      if (userAnswer && userAnswer.length > 0) {
+        userStatus.answer_filling = {
+          answerFilled: true,
+          answer: userAnswer[0].option_id,
+        };
+      }
     }
     else if (gameStatus[0].score_watching < 2) {
       // check if user is ready

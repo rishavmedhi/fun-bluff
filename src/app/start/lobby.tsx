@@ -116,7 +116,14 @@ function Lobby({ user, roomDetails, mode, roomMemberDetails }: LobbyProps) {
               lobbyUsers.map((user, index) => <LobbyCard key={index} username={user.user_name} />)
             }
           </div>
-          <Button onClick={startGame} className="mt-8 gap-2 w-full">Start <RocketIcon className="h-4 w-4" /></Button>
+          {
+            mode === "CREATOR" &&
+            <Button onClick={startGame} className="mt-8 gap-2 w-full">Start <RocketIcon className="h-4 w-4" /></Button>
+          }
+          {
+            mode === "JOINER" &&
+            <div className="mt-8 text-muted-foreground text-sm">Waiting for the creator to start the game</div>
+          }
         </>
       }
     </>

@@ -6,6 +6,7 @@ import { fetchUserDeviceId } from '@/utils/user.utils';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import WaitingForPlayers from '@/components/text/WaitingForPlayers';
 
 interface Props {
   gid: number;
@@ -76,7 +77,7 @@ function OptionFilling({ gid, userStatus }: Props) {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />) : null} Submit
         </Button>
       ) : (
-        <div className="text-center mt-8">Waiting for other players</div>
+        <WaitingForPlayers className="mt-8" />
       )}
     </>
   );
