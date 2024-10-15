@@ -1,7 +1,7 @@
 "use client"
 import { clientApiFetch } from "@/utils/apiFetch.utils";
 import { useEffect, useState } from "react";
-import { GameStatusType, QuestionType } from "@/types/collection";
+import { GameStatusType, GameQuestionMappingType } from "@/types/collection";
 import OptionFilling from "./components/OptionFilling";
 import { fetchUserDeviceId } from "@/utils/user.utils";
 import { userStatus } from "@/types/api/game/[gid]/responseTypes";
@@ -11,13 +11,14 @@ import AnswerFilling from "./components/AnswerFilling";
 import ScoreWatching from "./components/ScoreWatching";
 import CenterContainer from "@/components/CenterContainer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import GameComplete from "./components/GameComplete";
 
 interface gameStatusResponse {
   message: string,
   data: {
     gameStatus: GameStatusType["Row"],
     questionData: {
-      question: QuestionType["Row"]["question"]
+      question_content: GameQuestionMappingType["Row"]["question_content"]
     },
     userStatus: userStatus
   },
@@ -27,7 +28,8 @@ interface gameStatusResponse {
 enum gameStateEnum {
   OPTION_FILLING = 0,
   ANSWER_FILLING = 1,
-  SCORE_WATCHING = 2
+  SCORE_WATCHING = 2,
+  GAME_COMPLETE = 3
 }
 
 function Game({ params }: { params: { gid: string } }) {
@@ -40,6 +42,7 @@ function Game({ params }: { params: { gid: string } }) {
 
   useEffect(() => {
     async function init() {
+      setLoading(true);
       const res: gameStatusResponse = await clientApiFetch("/api/game/" + params.gid, {
         method: 'GET',
         headers: {
@@ -48,7 +51,7 @@ function Game({ params }: { params: { gid: string } }) {
       });
       if (!res.error) {
         const resGameStatus = res.data.gameStatus;
-        setCurrentQuestion(res.data.questionData.question!);
+        setCurrentQuestion(res.data.questionData.question_content!);
         setGameStatus(resGameStatus);
         if (resGameStatus.option_filling < 2) {
           setGameState(gameStateEnum.OPTION_FILLING);
@@ -58,6 +61,9 @@ function Game({ params }: { params: { gid: string } }) {
         }
         else if (resGameStatus.score_watching < 2) {
           setGameState(gameStateEnum.SCORE_WATCHING);
+        }
+        else if(resGameStatus.option_filling === 2 && resGameStatus.answer_filling === 2 && resGameStatus.score_watching === 2){
+          setGameState(gameStateEnum.GAME_COMPLETE);
         }
         setUserStatus(res.data.userStatus)
       }
@@ -87,6 +93,9 @@ function Game({ params }: { params: { gid: string } }) {
         else if (payload.new.score_watching < 2) {
           setGameState(gameStateEnum.SCORE_WATCHING);
         }
+        else if(payload.new.option_filling === 2 && payload.new.answer_filling === 2 && payload.new.score_watching === 2){
+          setGameState(gameStateEnum.GAME_COMPLETE);
+        }
       }
     }).subscribe();
 
@@ -101,7 +110,10 @@ function Game({ params }: { params: { gid: string } }) {
       <Card className="w-full max-w-md mx-auto">
         <CardHeader />
         <CardContent>
-          <div className="text-xl mb-2">{currentQuestion}</div>
+          {
+            gameState !== gameStateEnum.GAME_COMPLETE && <div className="text-xl mb-2">{currentQuestion}</div>
+          }
+
           {
             gameState === gameStateEnum.OPTION_FILLING && <OptionFilling gid={parseInt(params.gid)} userStatus={userStatus} />
           }
@@ -110,6 +122,9 @@ function Game({ params }: { params: { gid: string } }) {
           }
           {
             gameState === gameStateEnum.SCORE_WATCHING && <ScoreWatching gid={parseInt(params.gid)} userStatus={userStatus}/>
+          }
+          {
+            gameState === gameStateEnum.GAME_COMPLETE && <GameComplete gid={parseInt(params.gid)} userStatus={userStatus}/>
           }
         </CardContent>
       </Card>

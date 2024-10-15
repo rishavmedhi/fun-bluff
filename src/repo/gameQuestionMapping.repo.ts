@@ -22,7 +22,7 @@ export async function bulkInsertGameQuestions(questions : bulkInsertFormat[]){
 export async function fetchGameQuestionsByGameId(gameId: number){
   const {data, error} = await supabase
     .from("game_question_mapping")
-    .select("question_id")
+    .select("question_id,question_content")
     .eq("game_id", gameId)
   if (error) throw error;
 

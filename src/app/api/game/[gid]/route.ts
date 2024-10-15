@@ -30,7 +30,9 @@ export async function GET(
     const gameQuestionMapping = await fetchGameQuestionsByGameId(params.gid);
     // round is decreased by 1 as round is initialised as 1
     const roundQid = gameQuestionMapping[gameStatus[0].round-1];
-    const questionData = await fetchQuestionById(roundQid.question_id!);
+    // const questionData = await fetchQuestionById(roundQid.question_id!);
+    // gameQuestionMapping db records now have the user centric question content
+    const questionData = roundQid;
 
     // return user state
     // fetch userId from deviceId
@@ -94,7 +96,7 @@ export async function GET(
       message: "Game details fetched successfully",
       data: {
         gameStatus: gameStatus[0],
-        questionData: questionData[0],
+        questionData: questionData,
         userStatus: userStatus,
       },
       error: false,

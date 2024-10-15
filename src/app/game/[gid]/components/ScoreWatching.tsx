@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import ContentLoading from "@/components/ContentLoading";
 import WaitingForPlayers from "@/components/text/WaitingForPlayers";
 import Button from "@/components/Button";
+import { InResponseData, InUserScore } from "@/types/api/game/[gid]/score.type";
 
 interface Props {
   gid: number,
@@ -16,19 +17,6 @@ interface InScoreAPIResponse {
   message: string,
   error: boolean,
   data: InResponseData
-}
-
-interface InResponseData {
-  score: InUserScore[],
-}
-
-interface InUserScore {
-  score: number,
-  user: InUser
-}
-
-interface InUser {
-  user_name: string
 }
 
 function ScoreWatching({ gid, userStatus }: Props) {

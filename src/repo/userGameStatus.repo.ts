@@ -117,6 +117,7 @@ export async function fetchUserNameScore(gameId: number){
     .from("user_game_status")
     .select("score, user(user_name)")
     .eq("game_id", gameId)
+    .order("score", { ascending: false })
   
   if (error) throw error;
 

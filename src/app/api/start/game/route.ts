@@ -3,7 +3,9 @@ import { bulkInsertGameQuestions } from "@/repo/gameQuestionMapping.repo";
 import { createGameStatus } from "@/repo/gameStatus.repo";
 import { getQuestionsInRandomOrder } from "@/repo/question.repo";
 import { fetchRoomMembersByRoomId } from "@/repo/roomUserMapping.repo";
+import { fetchUsersByUserIds } from "@/repo/user.repo";
 import { createAllUsersGameStatus } from "@/repo/userGameStatus.repo";
+import { randomRoomMemberName } from "@/utils/backend/user.utils";
 
 export async function POST(request: Request) {
   try {
@@ -27,11 +29,24 @@ export async function POST(request: Request) {
       // randomise the order of questions
       // add questions to game_question_mapping
     const questions = await getQuestionsInRandomOrder(3)
+    // adding personalisation to the game questions
+    // getting room members
+    const roomMembers = await fetchRoomMembersByRoomId(res.roomId);
+    const userIds = roomMembers.map((value) => value.user_id);
+    const userDetailsList = await fetchUsersByUserIds(userIds);
+    
     // parsing questions to insertion format
-    const insertQuestionsPayload = questions.map((question) => ({question_id: question.id!, game_id: game[0].id}));
+    const insertQuestionsPayload = questions.map((question) => ({
+      question_id: question.id!,
+      game_id: game[0].id,
+      question_content: question.question?.replace(
+        '##{userName}##',
+        randomRoomMemberName(userDetailsList)
+      ),
+    }));
     await bulkInsertGameQuestions(insertQuestionsPayload);
     // add entries to the user_game_status
-    const roomMembers = await fetchRoomMembersByRoomId(res.roomId);
+    // const roomMembers = await fetchRoomMembersByRoomId(res.roomId);
     const insertUserGameStatusPayload = roomMembers.map((member) => ({game_id: game[0].id, user_id: member.user_id}));
     await createAllUsersGameStatus(insertUserGameStatusPayload);
     // return the gameId 
